@@ -1,0 +1,7 @@
+http:
+  middlewares:
+    baget-auth:
+      basicAuth:
+        users:
+          - "baget:$2y$05$/9ETS.TNT8sVjBJWkYD0jeEMLuYSZJOiQFjvqOrmZOPawZAVNSUoK"
+          - "noget:$2y$05$/9ETS.TNT8sVjBJWkYD0jeEMLuYSZJOiQFjvqOrmZOPawZAVNSUoK"

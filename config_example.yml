@@ -1,0 +1,17 @@
+log:
+    level: debug
+
+webserver:
+    protocol: http
+    hostname: localhost:8080
+    port: 8080
+    debug: false
+
+cookie:
+    name: _forward_auth
+    secret: P@ssword
+    domain: example.com
+
+authfile: basic-auth.yml
+authvalidity: 300
+
