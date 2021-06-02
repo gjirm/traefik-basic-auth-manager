@@ -52,6 +52,20 @@ func PutValue(bucket, keyname, value string) error {
 	return nil
 }
 
+// PutValue
+func PutValueTTL(bucket, keyname, value string, ttl uint32) error {
+	if err := db.Update(
+		func(tx *nutsdb.Tx) error {
+			key := []byte(keyname)
+			val := []byte(value)
+			return tx.Put(bucket, key, val, ttl)
+		}); err != nil {
+		log.Debugf("Error putting value: %w", err)
+		return err
+	}
+	return nil
+}
+
 // GetValue
 func GetValue(bucket, keyname string) (string, error) {
 	var getvalue string
@@ -60,7 +74,7 @@ func GetValue(bucket, keyname string) (string, error) {
 			key := []byte(keyname)
 			e, err := tx.Get(bucket, key)
 			if err != nil {
-				if err == nutsdb.ErrKeyNotFound {
+				if err == nutsdb.ErrKeyNotFound || err == nutsdb.ErrNotFoundKey {
 					getvalue = "Key Not Found"
 					return nil
 				}

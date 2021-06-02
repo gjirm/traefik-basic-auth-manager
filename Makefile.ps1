@@ -39,6 +39,19 @@ if ($Args[0] -eq "build-docker-tag") {
         Write-Host "--X $($imageName) build failed!" -ForegroundColor Red
         exit 1
     }
+}
+
+if ($Args[0] -eq "build-docker-nonametag") {
+    
+    Write-Host "--> Building $($imageNameTag)" -ForegroundColor Green
+    docker build --tag $imageName --tag $imageLatest .
+    If ($lastExitCode -eq "0") {
+        Write-Host "--> $($imageName) successfully build!" -ForegroundColor Green
+        exit 0
+    } else {
+        Write-Host "--X $($imageName) build failed!" -ForegroundColor Red
+        exit 1
+    }
 } 
 
 if ($args[0] -eq "run") {
@@ -53,7 +66,7 @@ if ($args[0] -eq "run-docker") {
 
         Write-Host "--> Run Docker container"  -ForegroundColor Green
         try {
-            docker run --rm -v $PSScriptRoot/config.yml:/tbam/config.yml --name $shortName -p 8080:8080 $imageLatest
+            docker run --rm -v $PSScriptRoot/config.yml:/tbam/config.yml -v $PSScriptRoot/db:/tbam/nutsdb -v $PSScriptRoot/basic-auth.yml:/tbam/basic-auth.yml --name $shortName -p 8080:8080 $imageLatest
         }
         catch {
             Write-Error $_.Exception

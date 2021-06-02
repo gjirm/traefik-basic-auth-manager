@@ -11,11 +11,16 @@ var config *Config
 
 // Configs exported
 type Config struct {
-	Log          LogConfig
-	Webserver    WebserverConfig
-	Cookie       CookieConfig
-	AuthFile     string
-	AuthValidity int
+	Log       LogConfig
+	Webserver WebserverConfig
+	Cookie    CookieConfig
+	AuthFile  string
+	Validity  ValidityConfig
+}
+
+type ValidityConfig struct {
+	Session    int
+	Credential int
 }
 
 // LogConfig exported

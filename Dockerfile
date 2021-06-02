@@ -23,24 +23,27 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-WORKDIR $GOPATH/src/tbam/
+#WORKDIR $GOPATH/src/tbam/
 
-COPY go.mod .
-COPY go.sum .
-COPY app/ app/
-COPY internal/ internal/
-COPY templates/* /templates/
+# COPY go.mod .
+# COPY go.sum .
+# COPY app/ app/
+
+#COPY internal/ internal/
+#COPY templates/* /templates/
 
 RUN mkdir /tbam
 
-ENV GO111MODULE=on
-RUN go mod download
-RUN go mod verify
+COPY tbam /tbam/tbam-server
+
+# ENV GO111MODULE=on
+# RUN go mod download
+# RUN go mod verify
 
 # Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags='-w -s -extldflags "-static"' -a \
-    -o /tbam/tbam-server app/main.go
+# RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+#     -ldflags='-w -s' -a \
+#     -o /tbam/tbam-server app/main.go
 
 ############################
 # STEP 2 build a small image
@@ -54,17 +57,17 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 
 # Copy static executable
-COPY --from=builder --chown=appuser:appuser /tbam/frag-server /tbam/frag-server
+COPY --from=builder --chown=appuser:appuser /tbam/tbam-server /tbam/tbam-server
 
 # Copy templates
-COPY --from=builder --chown=appuser:appuser /templates/* /tbam/templates/
+#COPY --from=builder --chown=appuser:appuser /templates/* /tbam/templates/
 
 # Use an unprivileged user.
 USER appuser:appuser
 
-WORKDIR /frag
+WORKDIR /tbam
 
 EXPOSE 8080
 
-# Run the gwc binary.
+# Run the tbam binary.
 ENTRYPOINT ["/tbam/tbam-server"]

@@ -12,6 +12,9 @@ cookie:
     secret: P@ssword
     domain: example.com
 
+validity:
+    session: 30
+    credential: 120
+
 authfile: basic-auth.yml
-authvalidity: 300
 

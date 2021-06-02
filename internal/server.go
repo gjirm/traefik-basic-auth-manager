@@ -2,6 +2,7 @@ package tbam
 
 import (
 	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -61,6 +62,196 @@ func UpdateBasicAuthCredentials(c *gin.Context) {
 	// }
 }
 
+// List valid
+func LoginManager(c *gin.Context) {
+
+	cLog := log.WithFields(logrus.Fields{
+		"path":   "/",
+		"remote": c.ClientIP(),
+	})
+
+	cLog.Info("Login manager")
+
+	c.Header("Cache-Control", "no-cache")
+
+	// Get auth cookie
+	cookie, err := c.Cookie(config.Cookie.Name)
+	if err != nil {
+		msg := "Auth cookie " + config.Cookie.Name + " not found"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	// Validate cookie
+	valid, msg := ValidateCookie(cookie)
+	if !valid {
+		// Cookie is not valid
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+
+	}
+
+	cLog.WithFields(logrus.Fields{
+		"user": msg,
+	}).Info("Valid request")
+
+	user := strings.Split(msg, "@")
+
+	c.HTML(http.StatusOK, "login.html", gin.H{
+		"user": user[0],
+	})
+
+}
+
+// Add user test
+func GetUser(c *gin.Context) {
+
+	cLog := log.WithFields(logrus.Fields{
+		"path":   "/getuser",
+		"remote": c.ClientIP(),
+	})
+
+	c.Header("Cache-Control", "no-cache")
+
+	// Get auth cookie
+	cookie, err := c.Cookie(config.Cookie.Name)
+	if err != nil {
+		msg := "Auth cookie " + config.Cookie.Name + " not found"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	// Validate cookie
+	valid, msg := ValidateCookie(cookie)
+	if !valid {
+		// Cookie is not valid
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+
+	}
+
+	cLog.WithFields(logrus.Fields{
+		"user": msg,
+	}).Info("Valid request")
+
+	user := strings.Split(msg, "@")
+
+	expire, err := GetValue("uservalid", user[0])
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	if expire == "Key Not Found" {
+		msg := "User not exists"
+		c.String(200, msg)
+		return
+	}
+
+	i, _ := strconv.ParseInt(string(expire), 10, 64)
+	expireTime := time.Unix(i, 0)
+
+	c.JSON(200, gin.H{
+		"username": user[0],
+		"validity": expireTime.UTC().Format("2006-01-02T15:04:05-0700"),
+	})
+
+}
+
+// Add user test
+func GenerateCredentials(c *gin.Context) {
+
+	cLog := log.WithFields(logrus.Fields{
+		"path":   "/generate",
+		"remote": c.ClientIP(),
+	})
+
+	c.Header("Cache-Control", "no-cache")
+
+	// Get auth cookie
+	cookie, err := c.Cookie(config.Cookie.Name)
+	if err != nil {
+		msg := "Auth cookie " + config.Cookie.Name + " not found"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	// Validate cookie
+	valid, msg := ValidateCookie(cookie)
+	if !valid {
+		// Cookie is not valid
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+
+	}
+
+	cLog.WithFields(logrus.Fields{
+		"user": msg,
+	}).Info("Valid request")
+
+	user := strings.Split(msg, "@")
+
+	pwd, hash, err := GetRandomBcryptHash()
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	err = PutValue("users", user[0], hash)
+	//test, err := GetValue("test", "kolo")
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	sessionExpire := time.Now().Add(time.Duration(config.Validity.Session) * time.Second)
+	err = PutValue("sessions", user[0], strconv.FormatInt(sessionExpire.Unix(), 10))
+	//test, err := GetValue("test", "kolo")
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	credentialExpire := time.Now().Add(time.Duration(config.Validity.Credential) * time.Second)
+	err = PutValue("uservalid", user[0], strconv.FormatInt(credentialExpire.Unix(), 10))
+	//test, err := GetValue("test", "kolo")
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	err = UpdateCredentials(user[0])
+	if err != nil {
+		msg := "Error"
+		cLog.Error(msg)
+		c.String(400, msg)
+		return
+	}
+
+	cLog.Info("ok")
+	c.JSON(200, gin.H{
+		"username": user[0],
+		"password": pwd,
+	})
+
+}
+
 // List test
 func DelTest(c *gin.Context) {
 
@@ -94,7 +285,7 @@ func ListBucketItems(c *gin.Context) {
 	bucket = strings.TrimPrefix(bucket, "/")
 
 	cLog := log.WithFields(logrus.Fields{
-		"path":   "/list" + bucket,
+		"path":   "/list/" + bucket,
 		"remote": c.ClientIP(),
 	})
 
@@ -142,7 +333,7 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	expireTime := time.Now().Add(30 + time.Minute)
+	expireTime := time.Now().Add(30 * time.Minute)
 	err = PutValue("valid", user, strconv.FormatInt(expireTime.Unix(), 10))
 	//test, err := GetValue("test", "kolo")
 	if err != nil {
@@ -241,8 +432,8 @@ func Expire(c *gin.Context) {
 
 }
 
-var task = func() {
-	bucket := "valid"
+var cron = func() {
+	bucket := "sessions"
 	users, _ := ListBucket(bucket)
 
 	log.Info("Running task")
@@ -256,6 +447,21 @@ var task = func() {
 		}
 
 	}
+
+	bucket = "uservalid"
+	users, _ = ListBucket(bucket)
+
+	for user, expire := range users {
+		i, _ := strconv.ParseInt(string(expire), 10, 64)
+		expireTime := time.Unix(i, 0).Unix()
+
+		if time.Now().Unix() > expireTime {
+			DeleteKey(bucket, user)
+			DeleteKey("users", user)
+		}
+
+	}
+
 }
 
 func checkExpire(bucket string) error {
@@ -303,16 +509,23 @@ func ApiServer() {
 	r.Use(location.Default())
 	r.Use(cors.Default())
 
+	// Load html templates
+	r.LoadHTMLGlob("templates/*")
+
 	s := gocron.NewScheduler(time.UTC)
 
-	s.Every(5).Seconds().Do(task)
+	s.Every(5).Seconds().Do(cron)
 
 	// you can start running the scheduler in two different ways:
 	// starts the scheduler asynchronously
 	s.StartAsync()
 
 	// Upload file to uploader
-	r.GET("/", UpdateBasicAuthCredentials)
+	r.GET("/", LoginManager)
+
+	r.GET("/generate", GenerateCredentials)
+
+	r.GET("/getuser", GetUser)
 
 	r.GET("/list/:bucket", ListBucketItems)
 
@@ -324,6 +537,7 @@ func ApiServer() {
 
 	r.GET("/expire", Expire)
 
+	log.Infof("Listening on :%d", config.Webserver.Port)
 	portNumber := ":" + strconv.Itoa(config.Webserver.Port)
 	r.Run(portNumber)
 }

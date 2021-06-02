@@ -17,3 +17,5 @@
 basic-auth.yml
 config.yml
 nutsdb/
+db/
+dist/

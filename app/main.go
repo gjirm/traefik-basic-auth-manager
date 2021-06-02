@@ -1,23 +1,31 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
 	internal "jirm.cz/traefik-basic-auth-manager/internal"
+)
+
+var (
+	version string
+	commit  string
+	date    string
 )
 
 func main() {
 
 	// Parse options
-	config := internal.NewGlobalConfig()
+	internal.NewGlobalConfig()
 
 	// Setup logger
 	log := internal.NewDefaultLogger()
 
-	internal.InitDB()
-
 	// Start
 	//log.WithField("config", config).Debug("Starting with config")
-	log.Info("Starting Traefik Basic Auth Manager")
-	log.Infof("Listening on :%d", config.Webserver.Port)
-
+	log.WithFields(logrus.Fields{
+		"version":    version,
+		"commitHash": commit,
+		"BuildDate":  date,
+	}).Info("Starting Traefik Basic Auth Manager")
+	internal.InitDB()
 	internal.ApiServer()
 }
