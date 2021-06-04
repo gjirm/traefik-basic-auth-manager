@@ -16,7 +16,7 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-// Validate user
+// Validate user cookie
 func validateUser(log *logrus.Entry, c *gin.Context) (string, error) {
 	// Get auth cookie
 	cookie, err := c.Cookie(config.Cookie.Name)
@@ -41,7 +41,7 @@ func validateUser(log *logrus.Entry, c *gin.Context) (string, error) {
 	return strings.Split(msg, "@")[0], nil
 }
 
-// Validate admin
+// Validate if user is admin
 func validateAdmin(user string) bool {
 
 	for _, item := range config.Admin {
@@ -78,6 +78,7 @@ func MainIndex(c *gin.Context) {
 }
 
 // Check status of users's credentials
+//   /status
 func CheckUserStatus(c *gin.Context) {
 
 	cLog := log.WithFields(logrus.Fields{
@@ -143,6 +144,7 @@ func CheckUserStatus(c *gin.Context) {
 }
 
 // Activate session for user
+//   /activate
 func ActivateSession(c *gin.Context) {
 
 	cLog := log.WithFields(logrus.Fields{
@@ -172,7 +174,6 @@ func ActivateSession(c *gin.Context) {
 
 	if test == "Key Not Found" {
 		msg := "User not exists"
-		//cLog.Error(msg)
 		c.String(200, msg)
 		return
 	}
@@ -205,6 +206,7 @@ func ActivateSession(c *gin.Context) {
 }
 
 // Generate new basic authentication credentials for user
+//   /generate
 func GenerateCredentials(c *gin.Context) {
 
 	cLog := log.WithFields(logrus.Fields{
@@ -280,7 +282,8 @@ func GenerateCredentials(c *gin.Context) {
 	})
 }
 
-// List test
+// Delete user
+//   /del/:username
 func DelUser(c *gin.Context) {
 
 	userName := c.Param("user")
@@ -311,7 +314,6 @@ func DelUser(c *gin.Context) {
 		return
 	}
 
-	//test, err := ListBucket("test1")
 	err = DeleteKey("users", userName)
 	if err != nil {
 		msg := "Error deleting: " + userName
@@ -328,7 +330,12 @@ func DelUser(c *gin.Context) {
 
 }
 
-// List valid
+// List DB bucket
+//  /list/:bucketname
+// Buckets:
+//   users - list of usernames and their basic authentication bcrypt hashes
+//   sessions - list of usernames and their login validity - until when users are allowed to login
+//   credentials - list of usernames and their crednetial validity - until when the user's credentials are valid
 func ListBucketObjects(c *gin.Context) {
 
 	bucket := c.Param("bucket")
@@ -374,7 +381,8 @@ func ListBucketObjects(c *gin.Context) {
 
 }
 
-// Add user test
+// Add new user
+//   /add/:username
 func AddUser(c *gin.Context) {
 
 	userName := c.Param("user")
@@ -453,16 +461,18 @@ func AddUser(c *gin.Context) {
 	})
 }
 
+// Cron task
 var cron = func() {
 	bucket := "sessions"
 	users, _ := ListBucket(bucket)
 
-	log.Info("Running task")
+	log.Debug("Running cron task")
 	for user, expire := range users {
 		i, _ := strconv.ParseInt(string(expire), 10, 64)
 		expireTime := time.Unix(i, 0).Unix()
 
 		if time.Now().Unix() > expireTime {
+			log.Debug("Cron - " + bucket + " - deleting: " + user)
 			DeleteKey(bucket, user)
 			RemoveCredentials(user)
 		}
@@ -477,15 +487,14 @@ var cron = func() {
 		expireTime := time.Unix(i, 0).Unix()
 
 		if time.Now().Unix() > expireTime {
+			log.Debug("Cron - " + bucket + " - deleting: " + user)
 			DeleteKey(bucket, user)
 			DeleteKey("users", user)
 		}
-
 	}
-
 }
 
-// MyServer server instance
+// Webserver instance
 func ApiServer() {
 
 	if !(config.Webserver.Debug) {

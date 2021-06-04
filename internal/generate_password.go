@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Generate new random password
 func generatePassword(length int, symbols string) (string, error) {
 	result := ""
 	for {
@@ -25,7 +26,7 @@ func generatePassword(length int, symbols string) (string, error) {
 	}
 }
 
-// Generate random hash
+// Generate random bcrypt hash
 func GetRandomBcryptHash() (password, hash string, err error) {
 
 	password, err = generatePassword(12, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

@@ -26,6 +26,10 @@ func main() {
 		"commitHash": commit,
 		"BuildDate":  date,
 	}).Info("Starting Traefik Basic Auth Manager")
+
+	// Init NutsDB
 	internal.InitDB()
+
+	// Start webserver
 	internal.ApiServer()
 }

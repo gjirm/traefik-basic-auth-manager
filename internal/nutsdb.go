@@ -12,17 +12,11 @@ var db *nutsdb.DB
 func InitDB() {
 	opt := nutsdb.DefaultOptions
 	fileDir := "./nutsdb"
-	var noDb bool = true
 	files, _ := ioutil.ReadDir(fileDir)
 	for _, f := range files {
 		name := f.Name()
 		if name != "" {
 			log.Info("Using existing DB: " + fileDir + "/" + name)
-			noDb = false
-			//err := os.RemoveAll(fileDir + "/" + name)
-			// if err != nil {
-			// 	panic(err)
-			// }
 		} else {
 			log.Info("Creating new DB: " + fileDir + "/" + name)
 		}
@@ -30,12 +24,6 @@ func InitDB() {
 	opt.Dir = fileDir
 	opt.SegmentSize = 1024 * 1024 // 1MB
 	db, _ = nutsdb.Open(opt)
-	if noDb {
-		PutValue("test", "ipcounter", "jedna")
-		PutValue("test", "ipspace", "dva")
-		PutValue("test", "server", "tri")
-	}
-	//bucket = "bucketForString"
 }
 
 // PutValue

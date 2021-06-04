@@ -20,6 +20,7 @@ type Config struct {
 	Admin     []string
 }
 
+// Session and credential validity
 type ValidityConfig struct {
 	Session    int
 	Credential int
@@ -30,21 +31,10 @@ type LogConfig struct {
 	Level string
 }
 
-// Recaptcha exported
-type SmtpConfig struct {
-	Server           string
-	From             string
-	DefaultRecipient string
-	Login            string
-	Password         string
-}
-
 // WebserverConfig exported
 type WebserverConfig struct {
-	Protocol string
-	Hostname string
-	Port     int
-	Debug    bool
+	Port  int
+	Debug bool
 }
 
 // CookieConfig exported

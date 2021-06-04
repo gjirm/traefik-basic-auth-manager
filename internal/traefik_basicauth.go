@@ -32,7 +32,6 @@ func RemoveCredentials(user string) error {
 	if err != nil {
 		log.Debugf("error: %v", err)
 	}
-	//fmt.Printf("--- t:\n%v\n\n", t)
 
 	exists := false
 	id := 0
@@ -56,8 +55,6 @@ func RemoveCredentials(user string) error {
 		return err
 	}
 
-	//fmt.Printf("--- t dump:\n%s\n\n", string(d))
-
 	ioutil.WriteFile(config.AuthFile, d, 0644)
 
 	return nil
@@ -76,7 +73,6 @@ func UpdateCredentials(user string) error {
 		log.Debugf("error: %v", err)
 		return err
 	}
-	//fmt.Printf("--- t:\n%v\n\n", t)
 
 	notExists := true
 	for i, hashString := range t.Http.Middlewares.BagetAuth.BasicAuth.Users {
@@ -106,8 +102,6 @@ func UpdateCredentials(user string) error {
 		log.Debugf("error: %v", err)
 		return err
 	}
-
-	//fmt.Printf("--- t dump:\n%s\n\n", string(d))
 
 	ioutil.WriteFile(config.AuthFile, d, 0644)
 

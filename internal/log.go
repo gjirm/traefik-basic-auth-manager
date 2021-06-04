@@ -10,30 +10,16 @@ var log *logrus.Logger
 
 // NewDefaultLogger creates a new logger based on the current configuration
 func NewDefaultLogger() *logrus.Logger {
-	// Setup logger
-	//log = logrus.StandardLogger()
 
 	// Init logging
 	log = logrus.New()
-	//Formatter := new(logrus.TextFormatter)
+
+	// JSON logs
 	Formatter := new(logrus.JSONFormatter)
 	log.SetFormatter(Formatter)
 	log.SetOutput(os.Stdout)
 
-	// Set logger format
-	// switch config.LogFormat {
-	// case "pretty":
-	// 	break
-	// case "json":
-	// 	logrus.SetFormatter(&logrus.JSONFormatter{})
-	// // "text" is the default
-	// default:
-	// 	logrus.SetFormatter(&logrus.TextFormatter{
-	// 		DisableColors: true,
-	// 		FullTimestamp: true,
-	// 	})
-	// }
-
+	// Set log level
 	switch config.Log.Level {
 	case "debug":
 		log.SetLevel(logrus.DebugLevel)
