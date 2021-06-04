@@ -25,8 +25,8 @@ cookie:
     domain: example.com
 
 # Validity in seconds
-#   session - how long will be credentials active in Traefik basic authentication file (authfile)
-#   credential - 
+#   session - how long will be credentials present in Traefik basic authentication file (authfile)
+#   credential - how log will be basic authentication valid. They will be deleted after validity ends.
 validity:
     session: 30
     credential: 120
