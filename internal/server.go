@@ -279,6 +279,7 @@ func GenerateCredentials(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"username": user,
 		"password": pwd,
+		"validity": credentialExpire.UTC().Format("2006-01-02T15:04:05-0700"),
 	})
 }
 

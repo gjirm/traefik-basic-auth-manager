@@ -76,7 +76,7 @@
 
         function displayCredentials(arr) {
             document.getElementById("activate").classList.remove("disabled")
-            out = "Username: " + arr.username + "<br>Password: " + arr.password + "<br>";
+            out = "Username: " + arr.username + "<br>Password: " + arr.password + "<br>Valid until: " + arr.validity + "<br>";
             document.getElementById("status").className = "alert alert-success"
             document.getElementById("status").innerHTML = out;
         }
