@@ -467,29 +467,32 @@ var cron = func() {
 	users, _ := ListBucket(bucket)
 
 	log.Debug("Running cron task")
-	for user, expire := range users {
-		i, _ := strconv.ParseInt(string(expire), 10, 64)
-		expireTime := time.Unix(i, 0).Unix()
+	if !(users["status"] == "Bucket Is Empty") {
+		for user, expire := range users {
+			i, _ := strconv.ParseInt(string(expire), 10, 64)
+			expireTime := time.Unix(i, 0).Unix()
 
-		if time.Now().Unix() > expireTime {
-			log.Debug("Cron - " + bucket + " - deleting: " + user)
-			DeleteKey(bucket, user)
-			RemoveCredentials(user)
+			if time.Now().Unix() > expireTime {
+				log.Debug("Cron - " + bucket + " - deleting: " + user)
+				DeleteKey(bucket, user)
+				RemoveCredentials(user)
+			}
+
 		}
-
 	}
 
 	bucket = "credentials"
 	users, _ = ListBucket(bucket)
+	if !(users["status"] == "Bucket Is Empty") {
+		for user, expire := range users {
+			i, _ := strconv.ParseInt(string(expire), 10, 64)
+			expireTime := time.Unix(i, 0).Unix()
 
-	for user, expire := range users {
-		i, _ := strconv.ParseInt(string(expire), 10, 64)
-		expireTime := time.Unix(i, 0).Unix()
-
-		if time.Now().Unix() > expireTime {
-			log.Debug("Cron - " + bucket + " - deleting: " + user)
-			DeleteKey(bucket, user)
-			DeleteKey("users", user)
+			if time.Now().Unix() > expireTime {
+				log.Debug("Cron - " + bucket + " - deleting: " + user)
+				DeleteKey(bucket, user)
+				DeleteKey("users", user)
+			}
 		}
 	}
 }
