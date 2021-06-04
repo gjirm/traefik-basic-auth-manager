@@ -8,15 +8,17 @@
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <div class="container mt-5" style="width: 576px;">
         <div class="mb-3">
-            <h3>Manage your credentials {{.user}}</h3>
+            <h3>Access for <a href="{{ .title }}">{{ .title }}</a></h3>
+            <p class="lead">
+                Credentials for user {{.user}}
+            </p>
         </div>
         <div class="mb-3">
             <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action list-group-item-primary" >Activate credentials</a>
-                <a href="#" class="list-group-item list-group-item-action list-group-item-primary" onclick="generateCredentials()">Generate new credentials</a>
+                <a href="#" class="list-group-item list-group-item-action list-group-item-primary disabled" id="activate" onclick="activateSession()">Activate credentials</a>
+                <a href="#" class="list-group-item list-group-item-action list-group-item-primary" id="generate" onclick="generateCredentials()">Generate new credentials</a>
             </div>
         </div>
         <div class="mb-3">
@@ -28,11 +30,11 @@
 
     document.addEventListener('readystatechange', event => { 
         if (event.target.readyState === "complete") {
-           chechUser();
+           checkUserStatus();
         }
     });
 
-    function chechUser() {
+    function checkUserStatus() {
         document.getElementById("status").style.display = "block";
         var xmlhttp = new XMLHttpRequest();
 
@@ -41,19 +43,19 @@
                 console.log('response', this.responseText);
                 if (this.responseText == "User not exists") {
                     document.getElementById("status").className = "alert alert-warning"
-                    document.getElementById("status").innerHTML = "You have no credentials. Please generate new";
+                    document.getElementById("status").innerHTML = "You have no credentials. Please generate new.";
                 } else {
                     var myArr = JSON.parse(this.responseText);
-                    displayCredentials(myArr);
+                    document.getElementById("activate").classList.remove("disabled")
+                    displayOutput(myArr);
                 }
-
             }
         };
-        xmlhttp.open("GET", "/getuser", true);
+        xmlhttp.open("GET", "/status", true);
         xmlhttp.send();
 
-        function displayCredentials(arr) {
-            out = "Username: " + arr.username + "<br>Validity: " + arr.validity + "<br>";
+        function displayOutput(arr) {
+            out = "Validity<br>Session: " + arr.session + "<br>Credential: " + arr.credential + "<br>";
             document.getElementById("status").innerHTML = out;
         }
     }
@@ -67,14 +69,43 @@
                 console.log('response', this.responseText);
                 var myArr = JSON.parse(this.responseText);
                 displayCredentials(myArr);
-
             }
         };
         xmlhttp.open("GET", "/generate", true);
         xmlhttp.send();
 
         function displayCredentials(arr) {
+            document.getElementById("activate").classList.remove("disabled")
             out = "Username: " + arr.username + "<br>Password: " + arr.password + "<br>";
+            document.getElementById("status").className = "alert alert-success"
+            document.getElementById("status").innerHTML = out;
+        }
+    }
+
+    function activateSession() {
+        document.getElementById("status").style.display = "block";
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log('response', this.responseText);
+                if (this.responseText == "User not exists") {
+                    document.getElementById("activate").classList.add("disabled")
+                    document.getElementById("status").className = "alert alert-warning"
+                    document.getElementById("status").innerHTML = "You have no credentials. Please generate new.";
+                } else {
+                    var myArr = JSON.parse(this.responseText);
+                    displayOutput(myArr);
+                }
+
+            }
+        };
+        xmlhttp.open("GET", "/activate", true);
+        xmlhttp.send();
+
+        function displayOutput(arr) {
+            document.getElementById("activate").classList.remove("disabled")
+            out = "Session valid until: " + arr.validity;
             document.getElementById("status").className = "alert alert-success"
             document.getElementById("status").innerHTML = out;
         }

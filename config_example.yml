@@ -1,6 +1,12 @@
 log:
     level: debug
 
+title: my.example.com
+
+admin:
+    - alice
+    - bob
+
 webserver:
     protocol: http
     hostname: localhost:8080

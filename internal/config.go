@@ -12,10 +12,12 @@ var config *Config
 // Configs exported
 type Config struct {
 	Log       LogConfig
+	Titleurl  string
 	Webserver WebserverConfig
 	Cookie    CookieConfig
 	AuthFile  string
 	Validity  ValidityConfig
+	Admin     []string
 }
 
 type ValidityConfig struct {

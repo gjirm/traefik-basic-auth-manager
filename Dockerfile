@@ -30,7 +30,7 @@ RUN adduser \
 # COPY app/ app/
 
 #COPY internal/ internal/
-#COPY templates/* /templates/
+COPY templates/* /templates/
 
 RUN mkdir /tbam
 
@@ -60,7 +60,7 @@ COPY --from=builder /etc/group /etc/group
 COPY --from=builder --chown=appuser:appuser /tbam/tbam-server /tbam/tbam-server
 
 # Copy templates
-#COPY --from=builder --chown=appuser:appuser /templates/* /tbam/templates/
+COPY --from=builder --chown=appuser:appuser /templates/* /tbam/templates/
 
 # Use an unprivileged user.
 USER appuser:appuser

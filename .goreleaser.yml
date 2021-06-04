@@ -27,6 +27,8 @@ archives:
       - goos: windows
         format: zip
     files:
+      - templates/**/*
+      - config_example.yml
       - README.md
       - LICENSE
 
