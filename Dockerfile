@@ -12,8 +12,6 @@ RUN apk update && apk add --no-cache git ca-certificates tzdata && update-ca-cer
 # Create appuser
 ENV USER=appuser
 ENV UID=11111
-
-# See https://stackoverflow.com/a/55757473/12429735
 RUN adduser \
     --disabled-password \
     --gecos "" \
@@ -23,27 +21,11 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-#WORKDIR $GOPATH/src/tbam/
-
-# COPY go.mod .
-# COPY go.sum .
-# COPY app/ app/
-
-#COPY internal/ internal/
 COPY templates/* /templates/
 
 RUN mkdir /tbam
 
 COPY tbam /tbam/tbam-server
-
-# ENV GO111MODULE=on
-# RUN go mod download
-# RUN go mod verify
-
-# Build the binary
-# RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-#     -ldflags='-w -s' -a \
-#     -o /tbam/tbam-server app/main.go
 
 ############################
 # STEP 2 build a small image
