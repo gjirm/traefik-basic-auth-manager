@@ -1,26 +1,35 @@
+
 log:
     level: debug
 
-title: my.example.com
+# Title url display in the heading of index page
+# Address of managed system
+titleurl: my.example.com
 
+# Admin users. Can access:
+#   /list/{users,sessions,credentials}
+#   /add/:username
+#   /del/:username
 admin:
     - alice
     - bob
 
 webserver:
-    protocol: http
-    hostname: localhost:8080
     port: 8080
     debug: false
 
+# For cookie validation
 cookie:
     name: _forward_auth
     secret: P@ssword
     domain: example.com
 
+# Validity in seconds
+#   session - how long will be credentials active in Traefik basic authentication file (authfile)
+#   credential - 
 validity:
     session: 30
     credential: 120
 
+# Traefik basic authentication file
 authfile: basic-auth.yml
-
