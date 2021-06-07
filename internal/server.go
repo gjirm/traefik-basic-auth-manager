@@ -521,7 +521,7 @@ func ApiServer() {
 
 	// Cron job for checking expiration of sessions and credentials
 	s := gocron.NewScheduler(time.UTC)
-	s.Every(5).Seconds().Do(cron)
+	s.Every(15).Seconds().Do(cron)
 	s.StartAsync()
 
 	// Main index
