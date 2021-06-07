@@ -178,7 +178,7 @@ func ActivateSession(c *gin.Context) {
 		return
 	}
 
-	expireTime := time.Now().Add(time.Duration(config.Validity.Session) * time.Second)
+	expireTime := time.Now().Add(time.Duration(config.Validity.Session) * time.Hour)
 	err = PutValue("sessions", user, strconv.FormatInt(expireTime.Unix(), 10))
 	if err != nil {
 		msg := "Error"
@@ -244,7 +244,7 @@ func GenerateCredentials(c *gin.Context) {
 		return
 	}
 
-	sessionExpire := time.Now().Add(time.Duration(config.Validity.Session) * time.Second)
+	sessionExpire := time.Now().Add(time.Duration(config.Validity.Session) * time.Hour)
 	err = PutValue("sessions", user, strconv.FormatInt(sessionExpire.Unix(), 10))
 	if err != nil {
 		msg := "Error put sessions: " + user
@@ -255,7 +255,7 @@ func GenerateCredentials(c *gin.Context) {
 		return
 	}
 
-	credentialExpire := time.Now().Add(time.Duration(config.Validity.Credential) * time.Second)
+	credentialExpire := time.Now().Add(time.Duration(config.Validity.Credential) * time.Hour)
 	err = PutValue("credentials", user, strconv.FormatInt(credentialExpire.Unix(), 10))
 	if err != nil {
 		msg := "Error put credentials: " + user
@@ -423,7 +423,7 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	sessionExpire := time.Now().Add(time.Duration(config.Validity.Session) * time.Second)
+	sessionExpire := time.Now().Add(time.Duration(config.Validity.Session) * time.Hour)
 	err = PutValue("sessions", userName, strconv.FormatInt(sessionExpire.Unix(), 10))
 	if err != nil {
 		msg := "Error put sessions: " + userName
@@ -434,7 +434,7 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	credentialExpire := time.Now().Add(time.Duration(config.Validity.Credential) * time.Second)
+	credentialExpire := time.Now().Add(time.Duration(config.Validity.Credential) * time.Hour)
 	err = PutValue("credentials", userName, strconv.FormatInt(credentialExpire.Unix(), 10))
 	if err != nil {
 		msg := "Error put credentials: " + userName

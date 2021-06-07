@@ -24,12 +24,12 @@ cookie:
     secret: P@ssword
     domain: example.com
 
-# Validity in seconds
+# Validity in hours
 #   session - how long will be credentials present in Traefik basic authentication file (authfile)
 #   credential - how log will be basic authentication valid. They will be deleted after validity ends.
 validity:
-    session: 30
-    credential: 120
+    session: 12
+    credential: 720
 
 # Traefik basic authentication file
 authfile: basic-auth.yml
