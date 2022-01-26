@@ -18,15 +18,59 @@
         <div class="mb-3">
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action list-group-item-primary disabled" id="activate" onclick="activateSession()">Activate credentials</a>
-                <a href="#" class="list-group-item list-group-item-action list-group-item-primary" id="generate" onclick="generateCredentials()">Generate new credentials</a>
+                <a href="#Modal" class="list-group-item list-group-item-action list-group-item-primary" id="generate" onclick="openModal()">Generate new credentials</a>
+                
+                <!-- <a href="#" class="list-group-item list-group-item-action list-group-item-primary" id="generate" onclick="generateCredentials()">Generate new credentials</a> -->
             </div>
         </div>
         <div class="mb-3">
             <div class="alert alert-info" role="alert" id="status" style="display:none;"></div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Generate new credentials</h5>
+            <button type="button" class="close" onclick="closeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Your old credentials will be overwritten. Do you really want to generate new credentials?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+            <button type="button" class="btn btn-primary" onclick="generateCredentials()">Generate</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
 </body>
 <script>
+
+    function openModal() {
+        //document.getElementById("backdrop").style.display = "block"
+        document.getElementById("Modal").style.display = "block"
+        document.getElementById("Modal").className += "show"
+    }
+    function closeModal() {
+        //document.getElementById("backdrop").style.display = "none"
+        document.getElementById("Modal").style.display = "none"
+        document.getElementById("Modal").className += document.getElementById("Modal").className.replace("show", "")
+    }
+    // Get the modal
+    var modal = document.getElementById('Modal');
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        closeModal()
+      }
+    }
 
     document.addEventListener('readystatechange', event => { 
         if (event.target.readyState === "complete") {
@@ -73,6 +117,8 @@
         };
         xmlhttp.open("GET", "/generate", true);
         xmlhttp.send();
+
+        closeModal();
 
         function displayCredentials(arr) {
             document.getElementById("activate").classList.remove("disabled")
