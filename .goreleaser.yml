@@ -49,7 +49,7 @@ dockers:
   - dockerfile: Dockerfile
     goos: linux
     goarch: amd64
-    use_buildx: true
+    use: buildx
     image_templates:
       - "jirm/{{ .ProjectName }}:latest"
       - "jirm/{{ .ProjectName }}:{{ .Tag }}"
