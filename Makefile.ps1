@@ -78,12 +78,18 @@ if ($args[0] -eq "run-docker") {
 
 }
 
+if ($args[0] -eq "release") {
+
+    Write-Host "--> Releasing using goreleaser..."  -ForegroundColor Green
+    goreleaser release --rm-dist
+
+}
+
 if ($args[0] -eq "test-release") {
 
     Write-Host "--> Testing goreleaser..."  -ForegroundColor Green
     goreleaser --snapshot --skip-publish --rm-dist
 
 }
-
 
 Write-Host "--! None!" -ForegroundColor Yellow
