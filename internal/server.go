@@ -61,7 +61,7 @@ func validateUser(log *logrus.Entry, c *gin.Context) (string, error) {
 
 	}
 
-	return user, nil
+	return strings.Split(user, "@")[0], nil
 }
 
 // Validate if user is admin
