@@ -39,7 +39,7 @@ checksum:
 
 signs:
   - cmd: cosign
-    stdin: '{{ .Env.COSIGN_PASSWORD}}'
+    stdin: '{{ .Env.COSIGN_PWD}}'
     args: ["sign-blob", "-key=/tmp/cosign.key", "-output=${signature}", "${artifact}"]
     artifacts: all
 
@@ -53,16 +53,23 @@ changelog:
       - '^docs:'
       - '^test:'
 
-# dockers:
-#   - dockerfile: Dockerfile
-#     goos: linux
-#     goarch: amd64
-#     use: buildx
-#     image_templates:
-#       - "jirm/{{ .ProjectName }}:latest"
-#       - "jirm/{{ .ProjectName }}:{{ .Tag }}"
-#     build_flag_templates:
-#       - "--platform=linux/amd64"
-#     extra_files:
-#       - templates
-#     #skip_push: true
+dockers:
+  - dockerfile: Dockerfile
+    goos: linux
+    goarch: amd64
+    use: buildx
+    image_templates:
+      - "jirm/{{ .ProjectName }}:latest"
+      - "jirm/{{ .ProjectName }}:{{ .Tag }}"
+    build_flag_templates:
+      - "--platform=linux/amd64"
+    extra_files:
+      - templates
+    #skip_push: true
+
+docker_signs:
+  - cmd: cosign
+    stdin: '{{ .Env.COSIGN_PWD}}'
+    artifacts: manifests
+    args: ["sign", "-key=/tmp/cosign.key", "-output=${signature}", "${artifact}"]
+    
