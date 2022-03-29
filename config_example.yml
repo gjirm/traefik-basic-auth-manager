@@ -23,6 +23,7 @@ cookie:
     name: _forward_auth
     secret: P@ssword
     domain: example.com
+    validate: true
 
 # Validity in hours
 #   session - how long will be credentials present in Traefik basic authentication file (authfile)

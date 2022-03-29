@@ -1,6 +1,7 @@
 package tbam
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -18,27 +19,49 @@ import (
 
 // Validate user cookie
 func validateUser(log *logrus.Entry, c *gin.Context) (string, error) {
-	// Get auth cookie
-	cookie, err := c.Cookie(config.Cookie.Name)
-	if err != nil {
-		msg := "Auth cookie " + config.Cookie.Name + " not found"
-		log.Error(msg)
-		return msg, err
+
+	user := ""
+	valid := false
+
+	if config.Cookie.Validate {
+
+		// Get auth cookie
+		cookie, err := c.Cookie(config.Cookie.Name)
+		if err != nil {
+			msg := "Auth cookie " + config.Cookie.Name + " not found"
+			log.Error(msg)
+			return msg, err
+		}
+
+		// Validate cookie
+		valid, user = ValidateCookie(cookie)
+		if !valid {
+			// Cookie is not valid
+			log.Error(user)
+			return user, err
+		}
+
+		log.WithFields(logrus.Fields{
+			"user": user,
+		}).Info("Valid request - cookie")
+
+	} else {
+		// Do not validate cookie - get user from X-Forwarded-User (for reverse proxies)
+		// Be cautious!
+		user = c.Request.Header.Get("X-Forwarded-User")
+		if len(strings.TrimSpace(user)) == 0 {
+			msg := "X-Forwarded-User not set"
+			log.Error(msg)
+			return msg, errors.New(msg)
+		}
+
+		log.WithFields(logrus.Fields{
+			"user": user,
+		}).Info("Validated request")
+
 	}
 
-	// Validate cookie
-	valid, msg := ValidateCookie(cookie)
-	if !valid {
-		// Cookie is not valid
-		log.Error(msg)
-		return msg, err
-	}
-
-	log.WithFields(logrus.Fields{
-		"user": msg,
-	}).Info("Valid request")
-
-	return strings.Split(msg, "@")[0], nil
+	return user, nil
 }
 
 // Validate if user is admin

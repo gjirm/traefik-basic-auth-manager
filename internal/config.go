@@ -39,9 +39,10 @@ type WebserverConfig struct {
 
 // CookieConfig exported
 type CookieConfig struct {
-	Name   string
-	Secret string
-	Domain string
+	Name     string
+	Secret   string
+	Domain   string
+	Validate bool
 }
 
 func readConfig(configName, configType string) (*Config, error) {
