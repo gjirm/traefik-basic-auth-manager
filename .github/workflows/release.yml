@@ -33,7 +33,10 @@ jobs:
       
       - name: Write cosign key to disk
         id: write_key
-        run: echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > "/tmp/cosign.key"
+        run: 'echo "$KEY" > /tmp/cosign.key'
+        shell: bash
+        env:
+          KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
       
       - name: Get Release Date
         id: release_date
