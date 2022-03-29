@@ -70,6 +70,6 @@ dockers:
 docker_signs:
   - cmd: cosign
     stdin: '{{ .Env.COSIGN_PWD}}'
-    artifacts: manifests
-    args: ["sign", "--key=/tmp/cosign.key", "--output-signature=${signature}", "${artifact}"]
+    artifacts: all
+    args: ["sign", "--key=/tmp/cosign.key", "${artifact}"]
     
